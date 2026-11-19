@@ -325,6 +325,51 @@ input[readonly]{background:var(--bg-2);color:var(--muted)}
 .lx3{font-size:7.8pt}
 .lx4{font-size:6.3pt}
 #print-area{display:none}
+/* sin puntos de color: estados en negro */
+.chip > i,.lc-st > i,.ly-tt em > i{display:none!important}
+.chip.c-ok,.chip.c-warn,.chip.c-bad,.chip.c-sin,.chip.c-crit,.chip.c-critA{color:var(--ink)!important;background:#EEF0F3!important}
+.lcs-ok,.lcs-warn,.lcs-bad,.lcs-sin{color:var(--ink)!important;background:#EEF0F3!important}
+.ly-tt em{color:inherit!important}
+.ly-tab:not(.on) .ly-tt em{color:var(--ink)!important}
+.ly-sht p .s-warn,.ly-sht p .s-bad{color:var(--ink)!important;font-weight:600}
+body.dark .chip.c-ok,body.dark .chip.c-warn,body.dark .chip.c-bad,body.dark .chip.c-sin,body.dark .lcs-ok,body.dark .lcs-warn,body.dark .lcs-bad,body.dark .lcs-sin{color:#F1E8EA!important;background:#2a1a1f!important}
+
+.lsvg .bdg,.lsvg .bdg.b-ok,.lsvg .bdg.b-warn,.lsvg .bdg.b-bad,.lsvg .bdg.b-sin{fill:#12161D}
+.bdg-al circle{fill:#fff;stroke:#12161D;stroke-width:2}
+.bdg-al text{fill:#12161D;font:800 11px var(--ff);text-anchor:middle}
+.auxc .ax-b{background:#12161D!important;color:#fff;display:inline-flex;align-items:center;justify-content:center;gap:3px}
+.ax-al{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;border-radius:50%;background:#fff;color:#12161D;font:800 11px/1 var(--ff)}
+.leg-l .lg-n,.leg-l .lg-a{width:18px;height:18px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font:700 10.5px/1 var(--ff);font-style:normal;flex-shrink:0}
+.leg-l .lg-n{background:#12161D;color:#fff}
+.leg-l .lg-a{background:#fff;color:#12161D;border:2px solid #12161D;font-weight:800}
+.leg-l{color:var(--ink)}
+body.dark .lsvg .bdg,body.dark .lsvg .bdg.b-ok,body.dark .lsvg .bdg.b-warn,body.dark .lsvg .bdg.b-bad,body.dark .lsvg .bdg.b-sin{fill:#F1E8EA}
+body.dark .lsvg .bdg-t{fill:#12161D}
+body.dark .leg-l .lg-n{background:#F1E8EA;color:#12161D}
+
+.alt-tag{display:inline-block;margin-left:8px;padding:1px 7px;border:1.5px solid #12161D;border-radius:4px;font:700 11px/1.5 var(--ff);color:#12161D;white-space:nowrap;vertical-align:2px}
+.c-id .alt-tag{margin:4px 0 0;display:table}
+.ink{color:var(--ink)}
+.chip-btn{cursor:pointer;font:inherit;border:0;transition:transform 160ms ease-out}
+.chip-btn:active{transform:scale(.97)}
+.chip-btn:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.lal{margin-top:16px;scroll-margin-top:84px;overflow:hidden}
+.stage-p{scroll-margin-top:84px}
+.lal-h{padding:16px 18px 12px;border-bottom:1px solid var(--line)}
+.lal-h h2{margin:0;font:800 22px var(--ff-h);color:#120005}
+.lal-h p{margin:4px 0 0;font-size:13.5px;color:var(--muted)}
+.lal-t{width:100%;border-collapse:collapse;font-size:14px}
+.lal-t th{text-align:left;font:600 13px var(--ff);color:#fff;background:#2a0008;padding:10px 14px;white-space:nowrap}
+.lal-t td{padding:12px 14px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink)}
+.lal-t tr:last-child td{border-bottom:0}
+.lal-t tbody tr{cursor:pointer;transition:background-color 150ms ease}
+.lal-t .mid{font:700 17px var(--ff-h);color:#6e0014;white-space:nowrap}
+.lal-a{margin:0;padding-left:16px}
+.lal-a li{margin:0 0 2px}
+@media (hover:hover) and (pointer:fine){.lal-t tbody tr:hover{background:#FBF5F6}}
+body.dark .lal-h h2{color:#F1E8EA}
+body.dark .alt-tag{border-color:#F1E8EA;color:#F1E8EA}
+
 .ver{max-width:1400px;margin:0 auto;padding:6px 24px 18px;font-size:11.5px;color:var(--faint);text-align:right}
 body.has-dock .ver{padding-bottom:118px}
 body.has-dock main.wrap{padding-bottom:16px!important}
@@ -1169,7 +1214,7 @@ body.dark .pc b{color:#12161D}body.dark .pc.e b{color:#8C95A4}body.dark .lbl{col
   </div>
 </header>
 <main class="wrap" id="view" tabindex="-1"></main>
-<p class="ver no-print">Versión 19 nov 2026, 2:55 p. m.</p>
+<p class="ver no-print">Versión 19 nov 2026, 3:30 p. m.</p>
 <div id="dockwrap"></div>
 <div id="print-area" aria-hidden="true"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -1841,7 +1886,7 @@ function rowHtml(m){
   const spec = [qty(m.voltaje,'V',0), qty(m.rpm,'rpm',0)].filter(Boolean).join(', ');
   const med = !me ? '<span class="muted">Sin medición</span>' : me.worst ? `<div class="medcell"><div><div class="medtxt">${me.worst.st === 'ok' ? 'En rango' : esc(me.worst.l + ': ' + me.worst.s)}</div><div class="sm">${esc(fmtD(me.md.fecha))}</div></div></div>` : '<span class="muted">Sin evaluación</span>';
   return `<tr data-a="open" data-id="${esc(m.id)}" tabindex="0">
-    <td class="c-id"><span class="mid" title="${esc(m.id)}">${esc(m.id)}</span></td>
+    <td class="c-id"><span class="mid" title="${esc(m.id)}">${esc(m.id)}</span>${alertsOf(m).length ? `<span class="alt-tag" title="${esc(alertsOf(m).map(a => a.txt).join('; '))}">Con alerta</span>` : ''}</td>
     <td class="c-mot"><div class="t2" title="${esc(m.nombre)}">${esc(m.nombre)}</div>${m.equipo ? `<div class="sm ell" title="${esc(m.equipo)}">${esc(m.equipo)}</div>` : ''}</td>
     <td class="c-loc"><div class="ell" title="${esc(m.planta)}">${esc(m.planta) || '<span class="muted">Sin planta</span>'}</div>${m.linea ? `<div class="sm ell" title="${esc(m.linea)}">${esc(m.linea)}</div>` : ''}</td>
     <td class="c-pot num">${kwOf(m) != null ? `${fmtN(kwOf(m),2)} kW` : (m.kw ? esc(m.kw + ' kW') : '<span class="muted">Sin dato</span>')}${spec ? `<div class="sm">${spec}</div>` : ''}</td>
@@ -2174,7 +2219,7 @@ function lineSvg(L, LI, sel, mini){
   const maq = flujo.map((e, i) => {
     const x = xd(i), ms = (LI && LI.eq[e.cod]) || [], st = worstOf(ms);
     const ls = wrapTxt(e.nombre, 12);
-    const badge = ms.length ? `<circle class="bdg b-${st}" cx="30" cy="110" r="11"/><text class="bdg-t" x="30" y="114">${ms.length}</text>` : '';
+    const badge = '';
     return `<g class="maq ${sel === e.cod ? 'on' : ''} ${ms.length ? '' : 'vacio'}" style="--m:${i}" ${mini ? '' : `data-a="lay-eq" data-v="${esc(e.cod)}" tabindex="0" role="button" aria-label="${esc(e.nombre)}, ${pl(ms.length,'motor','motores')}"`}>
       <title>${esc(e.cod)} ${esc(e.nombre)}: ${pl(ms.length,'motor','motores')}</title>
       <rect class="hit" x="${x - PITCH / 2 + 3}" y="92" width="${PITCH - 6}" height="${FY + 52 - 92}" rx="6"/>
@@ -2187,7 +2232,7 @@ function lineSvg(L, LI, sel, mini){
     <text class="rotulo" x="14" y="78">${esc(L.tag)}</text>
     <text class="rotulo" x="${W - 14}" y="78" text-anchor="end">SENTIDO DE PRODUCCIÓN →</text>
     ${prod}
-    <line class="piso" x1="0" y1="${FY}" x2="${W}" y2="${FY}"/><line class="piso-h" x1="0" y1="${FY + 5}" x2="${W}" y2="${FY + 5}"/>
+    <line class="piso" x1="0" y1="${FY}" x2="${W}" y2="${FY}"/>
     ${maq}
   </svg>`;
 }
@@ -2270,6 +2315,22 @@ function sortLines(P, I){
   else if (LSORT === 'kw') ls.sort((a, b) => kwSum(g(b)) - kwSum(g(a)));
   return ls;
 }
+function lineAlerts(L, LI){
+  const eqName = cod => { const e = L.eq.find(x => x.cod === cod); return e ? e.nombre : ''; };
+  const list = LI.motores.map(m => ({m, a:alertsOf(m)})).filter(x => x.a.length)
+    .sort((x, y) => SEV[y.a[0].st] - SEV[x.a[0].st] || String(x.m.equipoSap).localeCompare(String(y.m.equipoSap)));
+  return `<section class="panel lal" id="lalerts">
+    <div class="lal-h"><h2>Motores con alertas</h2><p>De los ${NF0.format(LI.motores.length)} motores de ${esc(LID(L))}, ${list.length === 1 ? 'este necesita' : `estos ${list.length} necesitan`} atención. Toca uno para abrir su ficha.</p></div>
+    <div class="scrollx"><table class="lal-t"><thead><tr><th>Código</th><th>Motor</th><th>Equipo</th><th>Qué tiene</th><th>Dónde está en la línea</th></tr></thead><tbody>
+    ${list.map(({m, a}) => `<tr data-a="open" data-id="${esc(m.id)}" tabindex="0">
+      <td><span class="mid">${esc(m.id)}</span></td>
+      <td>${esc(m.nombre)}</td>
+      <td><span class="sm">${esc(m.equipoSap || '')}</span><div>${esc(eqName(m.equipoSap) || m.equipo || '')}</div></td>
+      <td><ul class="lal-a">${a.map(x => `<li>${esc(x.txt)}</li>`).join('')}</ul></td>
+      <td>${m.equipoSap && L.eq.some(e => e.cod === m.equipoSap) ? `<button class="btn btn-sm" data-a="lay-eq-go" data-v="${esc(m.equipoSap)}">Ver en el dibujo</button>` : '<span class="muted sm">Sin equipo</span>'}</td>
+    </tr>`).join('')}
+    </tbody></table></div></section>`;
+}
 function lineCard(l, LI, plantKw, i){
   const al = nAlert(LI.motores), st = al ? worstOf(LI.motores) : (LI.motores.length ? 'ok' : 'sin');
   const kw = kwSum(LI.motores), sh = plantKw ? kw / plantKw * 100 : 0;
@@ -2338,13 +2399,14 @@ function renderLay(){
   v.innerHTML = `${crumbsHtml([{l:'Taxonomía', a:'lay'}, {l:P.nombre, a:'lay-p', v:P.id}, {l:LID(L)}])}
   <header class="panel fh lh"><span class="fh-bg" aria-hidden="true">${esc(LID(L))}</span>
     <div style="min-width:0"><div class="fh-id">${esc(P.nombre)}, ${esc(L.tipo)}</div><h1>${esc(LID(L))}${L.nombre !== LID(L) ? ` · ${esc(L.nombre)}` : ''}</h1>
-    <div class="fh-chips"><span class="chip c-res">${pl(LI.motores.length,'motor','motores')}</span><span class="chip c-res">${fmtN(kwSum(LI.motores),0)} kW instalados</span>${al ? `<span class="chip c-${worstOf(LI.motores)}"><i></i>${pl(al,'motor con alerta','motores con alertas')}</span>` : LI.motores.length ? `<span class="chip c-ok"><i></i>Sin alertas</span>` : ''}</div></div>
+    <div class="fh-chips"><span class="chip c-res">${pl(LI.motores.length,'motor','motores')}</span><span class="chip c-res">${fmtN(kwSum(LI.motores),0)} kW instalados</span>${al ? `<button class="chip chip-btn c-${worstOf(LI.motores)}" data-a="go-alerts"><i></i>${pl(al,'motor con alerta','motores con alertas')}: ver cuáles</button>` : LI.motores.length ? `<span class="chip c-ok"><i></i>Sin alertas</span>` : ''}</div></div>
   </header>
   <section class="panel stage-p"><div class="stage">${lineSvg(L, LI, sel && sel.cod)}</div>
-    <div class="leg-l"><span class="mob-only">Desliza el dibujo de lado para ver toda la línea.</span><span><i class="b-ok"></i>Motores sin alertas</span><span><i class="b-warn"></i>Alguno con alerta</span><span><i class="b-bad"></i>Alguno con alarma o fuera de servicio</span><span class="muted">El número indica cuántos motores tiene el equipo.</span></div>
+    <div class="leg-l"><span class="mob-only">Desliza el dibujo de lado para ver toda la línea.</span><span>Toca un equipo para ver sus motores.</span></div>
   </section>
-  ${aux.length ? `<div class="auxs">${aux.map(e => { const ms = LI.eq[e.cod] || []; const st = worstOf(ms); return `<button class="auxc ${sel && sel.cod === e.cod ? 'on' : ''}" data-a="lay-eq" data-v="${esc(e.cod)}"><span class="ax-c">${esc(e.cod)}</span><span class="ax-n">${esc(e.nombre)}</span>${ms.length ? `<span class="ax-b b-${st}">${ms.length}</span>` : '<span class="ax-0">Sin motores</span>'}</button>`; }).join('')}</div>` : ''}
-  <section class="panel eqp" id="eqp">${sel ? `<div class="eqp-h"><div><span class="eqp-c">${esc(sel.cod)}${sel.aux ? ', sistema auxiliar' : ''}</span><h2>${esc(sel.nombre)}</h2></div><div class="eqp-a"><span class="sm">${pl(selMs.length,'motor','motores')}${selMs.length ? `, ${fmtN(kwSum(selMs),1)} kW` : ''}</span><button class="btn btn-sm btn-pri" data-a="new-eq" data-id="${esc(sel.cod)}" data-v="${esc(P.id + '|' + L.id)}">${ic('plus')} Agregar motor</button></div></div>
+  ${al ? lineAlerts(L, LI) : ''}
+  ${aux.length ? `<div class="auxs">${aux.map(e => { const ms = LI.eq[e.cod] || []; const st = worstOf(ms); return `<button class="auxc ${sel && sel.cod === e.cod ? 'on' : ''}" data-a="lay-eq" data-v="${esc(e.cod)}"><span class="ax-c">${esc(e.cod)}</span><span class="ax-n">${esc(e.nombre)}</span>${ms.length ? `<span class="ax-0">${pl(ms.length,'motor','motores')}</span>` : '<span class="ax-0">Sin motores</span>'}</button>`; }).join('')}</div>` : ''}
+  <section class="panel eqp" id="eqp">${sel ? `<div class="eqp-h"><div><span class="eqp-c">${esc(sel.cod)}${sel.aux ? ', sistema auxiliar' : ''}</span><h2>${esc(sel.nombre)}</h2></div><div class="eqp-a"><span class="sm">${pl(selMs.length,'motor','motores')}${selMs.length ? `, ${fmtN(kwSum(selMs),1)} kW` : ''}${nAlert(selMs) ? `, <b class="ink">${nAlert(selMs)} con alerta${nAlert(selMs) === 1 ? '' : 's'}</b>` : ''}</span><button class="btn btn-sm btn-pri" data-a="new-eq" data-id="${esc(sel.cod)}" data-v="${esc(P.id + '|' + L.id)}">${ic('plus')} Agregar motor</button></div></div>
       ${selMs.length ? motorTable(selMs) : `<div class="empty" style="padding:28px 16px"><p>Este equipo no tiene motores registrados. Al crear o editar un motor, pon este número en “N.º de equipo SAP”.</p></div>`}`
     : `<div class="empty" style="padding:28px 16px"><p>Toca un equipo del dibujo para ver sus motores.</p></div>`}</section>
   ${LI.sinEq.length ? `<section class="panel" style="margin-top:16px"><div class="tbl-meta"><span>${pl(LI.sinEq.length,'motor de esta línea tiene','motores de esta línea tienen')} un N.º de equipo SAP que no está en la taxonomía</span></div>${motorTable(LI.sinEq)}</section>` : ''}`;
@@ -3208,6 +3270,8 @@ document.addEventListener('click', ev => {
     case 'dock': DOCK = DOCK === val ? '' : val; renderDock(); break;
     case 'lay-p': go({view:'lay', p:val}); break;
     case 'lsort': LSORT = val; renderLay(); break;
+    case 'lay-eq-go': { R = {...R, e:val}; try { const u = new URL(location.href); u.searchParams.set('e', val); history.replaceState(null, '', u); } catch(e){} renderLay(); const st = $('.stage-p'); st && st.scrollIntoView({block:'start', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'}); break; }
+    case 'go-alerts': { const x = $('#lalerts'); x && x.scrollIntoView({behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block:'start'}); break; }
     case 'lay-tab': {
       const open = R.view === 'lay' && R.p === val && !R.l;
       go(open ? {view:'lay'} : {view:'lay', p:val}, true);
