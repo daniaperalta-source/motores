@@ -1169,7 +1169,7 @@ body.dark .pc b{color:#12161D}body.dark .pc.e b{color:#8C95A4}body.dark .lbl{col
   </div>
 </header>
 <main class="wrap" id="view" tabindex="-1"></main>
-<p class="ver no-print">Versión 19 nov 2026, 2:50 p. m.</p>
+<p class="ver no-print">Versión 19 nov 2026, 2:55 p. m.</p>
 <div id="dockwrap"></div>
 <div id="print-area" aria-hidden="true"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -1839,7 +1839,7 @@ async function printOne(id){
 function rowHtml(m){
   const e = estadoOf(m.estado), me = medEval(m);
   const spec = [qty(m.voltaje,'V',0), qty(m.rpm,'rpm',0)].filter(Boolean).join(', ');
-  const med = !me ? '<span class="muted">Sin medición</span>' : me.worst ? `<div class="medcell"><i class="dot b-${me.worst.st}"></i><div><div class="medtxt">${me.worst.st === 'ok' ? 'En rango' : esc(me.worst.l + ': ' + me.worst.s)}</div><div class="sm">${esc(fmtD(me.md.fecha))}</div></div></div>` : '<span class="muted">Sin evaluación</span>';
+  const med = !me ? '<span class="muted">Sin medición</span>' : me.worst ? `<div class="medcell"><div><div class="medtxt">${me.worst.st === 'ok' ? 'En rango' : esc(me.worst.l + ': ' + me.worst.s)}</div><div class="sm">${esc(fmtD(me.md.fecha))}</div></div></div>` : '<span class="muted">Sin evaluación</span>';
   return `<tr data-a="open" data-id="${esc(m.id)}" tabindex="0">
     <td class="c-id"><span class="mid" title="${esc(m.id)}">${esc(m.id)}</span></td>
     <td class="c-mot"><div class="t2" title="${esc(m.nombre)}">${esc(m.nombre)}</div>${m.equipo ? `<div class="sm ell" title="${esc(m.equipo)}">${esc(m.equipo)}</div>` : ''}</td>
