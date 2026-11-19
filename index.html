@@ -326,6 +326,7 @@ input[readonly]{background:var(--bg-2);color:var(--muted)}
 .lx4{font-size:6.3pt}
 #print-area{display:none}
 body.solo .tabs{display:none!important}
+body:not(.is-admin) .adm-only{display:none!important}
 /* ===== Inicio del layout ===== */
 body.has-dock .wrap{padding-bottom:124px}
 .dock{transition:transform 280ms var(--ease-out),opacity 200ms ease}
@@ -1131,10 +1132,10 @@ body.dark .pc b{color:#12161D}body.dark .pc.e b{color:#8C95A4}body.dark .lbl{col
       <span class="brand-t"><strong>Motores eléctricos</strong><span>Confiabilidad, Multiperfiles</span></span>
     </button>
     <nav class="tabs" aria-label="Secciones">
-      <button class="tab" data-a="panel" data-view="panel">Panel</button>
-      <button class="tab" data-a="inv" data-view="inv">Inventario</button>
+      <button class="tab adm-only" data-a="panel" data-view="panel">Panel</button>
+      <button class="tab adm-only" data-a="inv" data-view="inv">Inventario</button>
       <button class="tab" data-a="lay" data-view="lay">Taxonomía</button>
-      <button class="tab adm" data-a="etq" data-view="etq">Etiquetas QR</button>
+      <button class="tab adm-only" data-a="etq" data-view="etq">Etiquetas QR</button>
     </nav>
     <div class="tools">
       <button class="sync" id="sync" data-st="local" type="button"><i></i><span>Modo local</span></button>
@@ -1653,13 +1654,14 @@ function viewName(r){
   return 'Inventario';
 }
 function backTarget(){
-  if (!SOLO) return {view:'inv'};
+  if (!onlyLay()) return {view:'inv'};
   const m = R.view === 'ficha' ? state.motores.find(x => x.id === R.id) : null, u = m ? ubicar(m) : null;
   return u && u.L ? {view:'lay', p:u.P.id, l:u.L.id, e:u.E ? u.E.cod : ''} : {view:'lay'};
 }
 function goBack(){ if (NAVH.length) history.back(); else go(backTarget()); }
+const onlyLay = () => SOLO || !admin;
 function go(r, keep){
-  if (SOLO && r.view !== 'lay' && r.view !== 'ficha') r = {view:'lay'};
+  if (onlyLay() && r.view !== 'lay' && r.view !== 'ficha') r = {view:'lay'};
   NAVH.push({...R});
   R = r;
   try {
@@ -1677,7 +1679,7 @@ window.addEventListener('popstate', () => { NAVH.pop(); readRoute(); render(); }
 
 function render(){
   reindex();
-  if (SOLO && R.view !== 'lay' && R.view !== 'ficha') R = {view:'lay'};
+  if (onlyLay() && R.view !== 'lay' && R.view !== 'ficha') R = {view:'lay'};
   const cur = R.view === 'etq' ? 'etq' : R.view === 'lay' ? 'lay' : R.view === 'panel' ? 'panel' : 'inv';
   $$('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.view === cur ? 'page' : 'false'));
   if (R.view === 'ficha') renderFicha(R.id);
@@ -1963,7 +1965,7 @@ function renderFicha(id){
 
   v.innerHTML = `${loadErrNote()}
   <div class="ftool">
-    <button class="btn btn-ghost bk" data-a="back" title="Volver a la pantalla anterior">${ic('back')}<span>Volver${NAVH.length ? ` a ${esc(viewName(NAVH[NAVH.length - 1]))}` : SOLO ? ` a ${esc(viewName(backTarget()))}` : ' al inventario'}</span></button>
+    <button class="btn btn-ghost bk" data-a="back" title="Volver a la pantalla anterior">${ic('back')}<span>Volver${NAVH.length ? ` a ${esc(viewName(NAVH[NAVH.length - 1]))}` : onlyLay() ? ` a ${esc(viewName(backTarget()))}` : ' al inventario'}</span></button>
     <div class="ftool-r adm">
       <button class="btn btn-pri" data-a="hist-new" data-id="${esc(m.id)}">${ic('wrench')}<span>Registrar servicio</span></button>
       <button class="btn" data-a="med-new" data-id="${esc(m.id)}">${ic('gauge')}<span>Registrar medición</span></button>
@@ -2273,7 +2275,7 @@ function renderLay(){
     } else {
       body = `<div class="ly-pick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg><p>Elige una unidad de negocio para desplegar sus líneas.</p></div>`;
     }
-    v.innerHTML = `${loadErrNote()}${SOLO ? baseNote(true) : ''}<div class="ly ${first ? 'first' : ''}">
+    v.innerHTML = `${loadErrNote()}${baseNote(true)}<div class="ly ${first ? 'first' : ''}">
       <section class="ly-hero"><span class="kpi-bg" aria-hidden="true">TAXONOMÍA</span>
         <div class="ly-hh"><h1>Taxonomía</h1><p>Elige la unidad de negocio y se despliegan sus líneas. Cada equipo del dibujo muestra cuántos motores tiene; tócalo para ver sus motores y su ficha.</p></div>
         <div class="ly-sts">${lyStat(PLANTAS.length, PLANTAS.length === 1 ? 'unidad' : 'unidades')}${lyStat(nL, 'líneas')}${lyStat(all.length, 'motores')}${lyStat(kwSum(all), 'kW instalados')}</div>
@@ -2961,15 +2963,15 @@ function askPin(then, why){
   });
 }
 function lockToggle(){
-  if (admin) { admin = false; store.sset(SS_ADMIN, '0'); applyAdmin(); toast('Saliste del modo administrador.'); render(); return; }
+  if (admin) { admin = false; store.sset(SS_ADMIN, '0'); applyAdmin(); toast('Saliste del modo administrador.'); if (R.view !== 'lay' && R.view !== 'ficha') go({view:'lay'}); else render(); return; }
   openModal({
     title:'Modo administrador',
-    body:`<p class="sm">Con el PIN puedes agregar y eliminar motores, y borrar servicios o mediciones. Registrar servicios, mediciones y editar datos no lo necesita.</p><div class="f" data-f="pin"><label for="pin" class="sr">PIN</label><input id="pin" name="pin" class="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"><p class="ferr" hidden></p></div>`,
+    body:`<p class="sm">${SOLO ? '' : 'Con el PIN se muestran Panel, Inventario y Etiquetas QR. '}También puedes agregar y eliminar motores, y borrar servicios o mediciones. Registrar servicios, mediciones y editar datos no lo necesita.</p><div class="f" data-f="pin"><label for="pin" class="sr">PIN</label><input id="pin" name="pin" class="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"><p class="ferr" hidden></p></div>`,
     foot:`<button type="button" class="btn" data-a="modal-close">Cancelar</button><button type="submit" class="btn btn-pri">Entrar</button>`,
     onMount: form => setTimeout(() => form.pin.focus(), 80),
     onSubmit: form => {
       if (form.pin.value.trim() !== CONFIG.PIN) { showErrs(form, {pin:'PIN incorrecto.'}); form.pin.select(); return; }
-      admin = true; store.sset(SS_ADMIN, '1'); applyAdmin(); closeModal(); toast('Modo administrador activo.'); render(); if (migSave && API()) { migSave = false; persist(); }
+      admin = true; store.sset(SS_ADMIN, '1'); applyAdmin(); closeModal(); toast(SOLO ? 'Modo administrador activo.' : 'Modo administrador activo: ya puedes ver Panel, Inventario y Etiquetas QR.'); render(); if (migSave && API()) { migSave = false; persist(); }
     }
   });
 }
@@ -3099,7 +3101,7 @@ document.addEventListener('click', ev => {
     case 'inv': go({view:'inv'}); break;
     case 'etq': go({view:'etq'}); break;
     case 'lay': go({view:'lay'}); break;
-    case 'panel': go({view:'panel'}); break;
+    case 'panel': go(admin && !SOLO ? {view:'panel'} : {view:'lay'}); break;
     case 'back': goBack(); break;
     case 'theme': setTheme(!document.body.classList.contains('dark')); break;
     case 'pf-line': PF.linea = PF.linea === val ? '' : val; renderPanel(); break;
