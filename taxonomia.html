@@ -325,6 +325,7 @@ input[readonly]{background:var(--bg-2);color:var(--muted)}
 .lx3{font-size:7.8pt}
 .lx4{font-size:6.3pt}
 #print-area{display:none}
+.medtxt{color:var(--ink)}
 .eqp-a{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
 .ly-sh .ly-add{flex-shrink:0}
 @media (max-width:560px){.eqp-a{justify-content:flex-start}.ly-sh .ly-add{width:100%;justify-content:center}}
@@ -1834,7 +1835,7 @@ async function printOne(id){
 function rowHtml(m){
   const e = estadoOf(m.estado), me = medEval(m);
   const spec = [qty(m.voltaje,'V',0), qty(m.rpm,'rpm',0)].filter(Boolean).join(', ');
-  const med = !me ? '<span class="muted">Sin medición</span>' : me.worst ? `<div class="medcell"><i class="dot b-${me.worst.st}"></i><div><div class="s-${me.worst.st === 'ok' ? 'ok' : me.worst.st}">${me.worst.st === 'ok' ? 'En rango' : esc(me.worst.l + ': ' + me.worst.s)}</div><div class="sm">${esc(fmtD(me.md.fecha))}</div></div></div>` : '<span class="muted">Sin evaluación</span>';
+  const med = !me ? '<span class="muted">Sin medición</span>' : me.worst ? `<div class="medcell"><i class="dot b-${me.worst.st}"></i><div><div class="medtxt">${me.worst.st === 'ok' ? 'En rango' : esc(me.worst.l + ': ' + me.worst.s)}</div><div class="sm">${esc(fmtD(me.md.fecha))}</div></div></div>` : '<span class="muted">Sin evaluación</span>';
   return `<tr data-a="open" data-id="${esc(m.id)}" tabindex="0">
     <td class="c-id"><span class="mid" title="${esc(m.id)}">${esc(m.id)}</span></td>
     <td class="c-mot"><div class="t2" title="${esc(m.nombre)}">${esc(m.nombre)}</div>${m.equipo ? `<div class="sm ell" title="${esc(m.equipo)}">${esc(m.equipo)}</div>` : ''}</td>
