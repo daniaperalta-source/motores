@@ -1259,7 +1259,7 @@ body.dark .pc b{color:#12161D}body.dark .pc.e b{color:#8C95A4}body.dark .lbl{col
   </div>
 </header>
 <main class="wrap" id="view" tabindex="-1"></main>
-<p class="ver no-print">Versión 19 nov 2026, 4:10 p. m.</p>
+<p class="ver no-print">Versión 19 nov 2026, 4:15 p. m.</p>
 <div id="dockwrap"></div>
 <div id="print-area" aria-hidden="true"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -2309,7 +2309,7 @@ function lineSvg(L, LI, sel, mini){
     const nal = nAlert(ms);
     const badge = !ms.length ? '' : nal
       ? (() => { const t = `${nal} de ${ms.length}`, w = 14 + t.length * 6.6; return `<g class="bdg-g"><rect class="bdg-r" x="${36 - w / 2}" y="99" width="${w}" height="22" rx="11"/><text class="bdg-t" x="36" y="114">${t}</text></g>`; })()
-      : '';
+      : `<circle class="bdg-ok" cx="30" cy="110" r="11"/><text class="bdg-t" x="30" y="114">${ms.length}</text>`;
     return `<g class="maq ${sel === e.cod ? 'on' : ''} ${ms.length ? '' : 'vacio'}" style="--m:${i}" ${mini ? '' : `data-a="lay-eq" data-v="${esc(e.cod)}" tabindex="0" role="button" aria-label="${esc(e.nombre)}, ${pl(ms.length,'motor','motores')}"`}>
       <title>${esc(e.cod)} ${esc(e.nombre)}: ${pl(ms.length,'motor','motores')}${nAlert(ms) ? `, ${nAlert(ms)} en alerta` : ''}</title>
       <rect class="hit" x="${x - PITCH / 2 + 3}" y="92" width="${PITCH - 6}" height="${FY + 52 - 92}" rx="6"/>
@@ -2516,7 +2516,7 @@ function renderLay(){
     <div class="leg-l"><span class="mob-only">Desliza el dibujo de lado para ver toda la línea.</span>${al ? `<span><i class="lg-bad">2 de 4</i>Motores en alerta de los que tiene el equipo</span>` : ''}<span class="muted">Toca un equipo para ver sus motores.</span></div>
   </section>
   ${al ? lineAlerts(L, LI) : ''}
-  ${aux.length ? `<div class="auxs">${aux.map(e => { const ms = LI.eq[e.cod] || []; const st = worstOf(ms); return `<button class="auxc ${sel && sel.cod === e.cod ? 'on' : ''}" data-a="lay-eq" data-v="${esc(e.cod)}"><span class="ax-c">${esc(e.cod)}</span><span class="ax-n">${esc(e.nombre)}</span>${ms.length ? (nAlert(ms) ? `<span class="ax-p ax-bad">${nAlert(ms)} de ${ms.length} en alerta</span>` : `<span class="ax-0">${pl(ms.length,'motor','motores')}</span>`) : '<span class="ax-0">Sin motores</span>'}</button>`; }).join('')}</div>` : ''}
+  ${aux.length ? `<div class="auxs">${aux.map(e => { const ms = LI.eq[e.cod] || []; const st = worstOf(ms); return `<button class="auxc ${sel && sel.cod === e.cod ? 'on' : ''}" data-a="lay-eq" data-v="${esc(e.cod)}"><span class="ax-c">${esc(e.cod)}</span><span class="ax-n">${esc(e.nombre)}</span>${ms.length ? (nAlert(ms) ? `<span class="ax-p ax-bad">${nAlert(ms)} de ${ms.length} en alerta</span>` : `<span class="ax-p ax-ok">${pl(ms.length,'motor','motores')}</span>`) : '<span class="ax-0">Sin motores</span>'}</button>`; }).join('')}</div>` : ''}
   <section class="panel eqp" id="eqp">${sel ? `<div class="eqp-h"><div><span class="eqp-c">${esc(sel.cod)}${sel.aux ? ', sistema auxiliar' : ''}</span><h2>${esc(sel.nombre)}</h2></div><div class="eqp-a"><span class="sm">${pl(selMs.length,'motor','motores')}${selMs.length ? `, ${fmtN(kwSum(selMs),1)} kW` : ''}${nAlert(selMs) ? `, <b class="ink">${nAlert(selMs)} con alerta${nAlert(selMs) === 1 ? '' : 's'}</b>` : ''}</span><button class="btn btn-sm btn-pri" data-a="new-eq" data-id="${esc(sel.cod)}" data-v="${esc(P.id + '|' + L.id)}">${ic('plus')} Agregar motor</button></div></div>
       ${selMs.length ? motorTable(selMs) : `<div class="empty" style="padding:28px 16px"><p>Este equipo no tiene motores registrados. Al crear o editar un motor, pon este número en “N.º de equipo SAP”.</p></div>`}`
     : `<div class="empty" style="padding:28px 16px"><p>Toca un equipo del dibujo para ver sus motores.</p></div>`}</section>
