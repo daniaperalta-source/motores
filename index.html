@@ -355,7 +355,8 @@ body.dark .ins-t tr.sel td{background:#2a1a1f}
 
 .crow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .crow .crumbs{margin-bottom:0;min-width:0}
-.crow-bk{flex-shrink:0;gap:6px}
+.crow-bk{flex-shrink:0;gap:6px;background:#6e0014!important;color:#fff!important;border-color:#6e0014!important;font-weight:700}
+.crow-bk svg{stroke:#fff}
 .crow-bk svg{width:16px;height:16px}
 
 .lsvg .bdg-ok{fill:#2E9A65;stroke:#fff;stroke-width:2}
@@ -370,11 +371,13 @@ body.dark .ins-t tr.sel td{background:#2a1a1f}
 /* sin puntos de color: estados en negro */
 .chip > i,.lc-st > i,.ly-tt em > i{display:none!important}
 .chip.c-ok,.chip.c-warn,.chip.c-bad,.chip.c-sin,.chip.c-crit,.chip.c-critA{color:var(--ink)!important;background:#EEF0F3!important}
-.lcs-ok,.lcs-warn,.lcs-bad,.lcs-sin{color:var(--ink)!important;background:#EEF0F3!important}
-.ly-tt em{color:inherit!important}
-.ly-tab:not(.on) .ly-tt em{color:var(--ink)!important}
+.lcs-ok,.lcs-sin{color:var(--ink)!important;background:#EEF0F3!important}
+.lcs-warn,.lcs-bad{color:#9A3412!important;background:#FFE4C7!important;font-weight:700!important}
+.ly-tab .ly-tt em{color:#C2410C!important;font-weight:700}
+.ly-tab.on .ly-tt em{color:#FFB15C!important}
 .ly-sht p .s-warn,.ly-sht p .s-bad{color:var(--ink)!important;font-weight:600}
-body.dark .chip.c-ok,body.dark .chip.c-warn,body.dark .chip.c-bad,body.dark .chip.c-sin,body.dark .lcs-ok,body.dark .lcs-warn,body.dark .lcs-bad,body.dark .lcs-sin{color:#F1E8EA!important;background:#2a1a1f!important}
+body.dark .lcs-warn,body.dark .lcs-bad{color:#FFB15C!important;background:#3a2412!important}
+body.dark .chip.c-ok,body.dark .chip.c-warn,body.dark .chip.c-bad,body.dark .chip.c-sin,body.dark .lcs-ok,body.dark .lcs-sin{color:#F1E8EA!important;background:#2a1a1f!important}
 
 .lsvg .bdg,.lsvg .bdg.b-ok,.lsvg .bdg.b-warn,.lsvg .bdg.b-bad,.lsvg .bdg.b-sin{fill:#12161D}
 .bdg-al circle{fill:#fff;stroke:#12161D;stroke-width:2}
@@ -1256,7 +1259,7 @@ body.dark .pc b{color:#12161D}body.dark .pc.e b{color:#8C95A4}body.dark .lbl{col
   </div>
 </header>
 <main class="wrap" id="view" tabindex="-1"></main>
-<p class="ver no-print">Versión 19 nov 2026, 3:55 p. m.</p>
+<p class="ver no-print">Versión 19 nov 2026, 4:05 p. m.</p>
 <div id="dockwrap"></div>
 <div id="print-area" aria-hidden="true"></div>
 <div class="toasts" id="toasts" aria-live="polite"></div>
@@ -2477,7 +2480,7 @@ function renderLay(){
     const stats = P ? `${lyStat(nL, 'líneas')}${lyStat(mots.length, 'motores')}${lyStat(kwSum(mots), 'kW instalados')}${lyStat(nAlert(mots), 'con alertas')}`
       : `${lyStat(PLANTAS.length, 'unidades')}${lyStat(nL, 'líneas')}${lyStat(mots.length, 'motores')}${lyStat(kwSum(mots), 'kW instalados')}`;
     const tabs = [{id:'TODAS', nombre:'Todas', sub:`${PLANTAS.length} unidades`, all:true}, ...PLANTAS];
-    v.innerHTML = `${loadErrNote()}${baseNote(true)}<div class="ly ${first ? 'first' : ''}">
+    v.innerHTML = `${loadErrNote()}${baseNote(true)}${selK ? `<div class="crow no-print"><span class="sm muted">Taxonomía / ${P ? esc(P.nombre) : 'Todas'}</span><button class="btn btn-sm crow-bk" data-a="home-back" title="Regresar a la pantalla anterior">${ic('back')}<span>Atrás</span></button></div>` : ''}<div class="ly ${first ? 'first' : ''}">
       <section class="ly-hero"><span class="kpi-bg" aria-hidden="true">TAXONOMÍA</span>
         <div class="ly-hh"><h1>Taxonomía</h1><p class="ly-scope">Mostrando: <b>${P ? esc(P.nombre) : 'todas las unidades de negocio'}</b></p><p>Elige la unidad de negocio y se despliegan sus líneas. Cada equipo del dibujo muestra cuántos motores tiene; tócalo para ver sus motores y su ficha.</p></div>
         <div class="ly-sts">${stats}</div>
@@ -3378,6 +3381,7 @@ document.addEventListener('click', ev => {
     case 'dock': DOCK = DOCK === val ? '' : val; renderDock(); break;
     case 'lay-p': go({view:'lay', p:val}); break;
     case 'lsort': LSORT = val; renderLay(); break;
+    case 'home-back': { if (NAVH.length) history.back(); else go({view:'lay'}); break; }
     case 'crumb-back': {
       if (NAVH.length) { history.back(); break; }
       const fa = b.dataset.fa, fv = b.dataset.fv;
