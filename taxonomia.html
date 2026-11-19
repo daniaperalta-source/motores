@@ -325,7 +325,28 @@ input[readonly]{background:var(--bg-2);color:var(--muted)}
 .lx3{font-size:7.8pt}
 .lx4{font-size:6.3pt}
 #print-area{display:none}
+.eqp-a{display:flex;align-items:center;gap:12px;flex-wrap:wrap;justify-content:flex-end}
+.ly-sh .ly-add{flex-shrink:0}
+@media (max-width:560px){.eqp-a{justify-content:flex-start}.ly-sh .ly-add{width:100%;justify-content:center}}
+
+.esl{list-style:none;margin:0;padding:0}
+.esl li{display:grid;grid-template-columns:minmax(0,auto) minmax(0,1fr) auto;align-items:center;gap:10px 16px;padding:12px 0;border-bottom:1px solid var(--line)}
+.esl li:first-child{padding-top:0}.esl li:last-child{border-bottom:0;padding-bottom:0}
+.es-dt{display:flex;align-items:center;gap:10px}
+.es-dt span{display:flex;flex-direction:column;line-height:1.15}
+.es-dt small{font-size:11.5px;color:var(--muted)}
+.es-dt b{font:700 16px var(--ff-h);color:#120005;font-variant-numeric:tabular-nums;white-space:nowrap}
+.es-dt svg{width:18px;height:18px;fill:none;stroke:#b0001e;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.esl li.open .es-dt span:last-child b{color:#8a5a00}
+.es-m{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;min-width:0}
+.es-r{display:flex;align-items:center;gap:10px;justify-self:end}
+.es-d{font:700 14px var(--ff-h);padding:3px 10px;border-radius:999px;background:#EEF0F3;color:#3d4350;white-space:nowrap}
+.es-d.w{background:#FDF1DC;color:#8a5a00}
+body.dark .es-dt b{color:#F1E8EA}
+@media (max-width:600px){.esl li{grid-template-columns:minmax(0,1fr)}.es-r{justify-self:start}}
+
 body.solo .tabs{display:none!important}
+body:not(.is-admin) .adm-only{display:none!important}
 /* ===== Inicio del layout ===== */
 body.has-dock .wrap{padding-bottom:124px}
 .dock{transition:transform 280ms var(--ease-out),opacity 200ms ease}
@@ -1131,10 +1152,10 @@ body.dark .pc b{color:#12161D}body.dark .pc.e b{color:#8C95A4}body.dark .lbl{col
       <span class="brand-t"><strong>Motores eléctricos</strong><span>Confiabilidad, Multiperfiles</span></span>
     </button>
     <nav class="tabs" aria-label="Secciones">
-      <button class="tab" data-a="panel" data-view="panel">Panel</button>
-      <button class="tab" data-a="inv" data-view="inv">Inventario</button>
+      <button class="tab adm-only" data-a="panel" data-view="panel">Panel</button>
+      <button class="tab adm-only" data-a="inv" data-view="inv">Inventario</button>
       <button class="tab" data-a="lay" data-view="lay">Taxonomía</button>
-      <button class="tab adm" data-a="etq" data-view="etq">Etiquetas QR</button>
+      <button class="tab adm-only" data-a="etq" data-view="etq">Etiquetas QR</button>
     </nav>
     <div class="tools">
       <button class="sync" id="sync" data-st="local" type="button"><i></i><span>Modo local</span></button>
@@ -1272,7 +1293,8 @@ const HF = [
   {k:'tipo', l:'Tipo'}, {k:'descripcion', l:'Descripción'}, {k:'causa', l:'Causa de la falla'},
   {k:'repuestosUsados', l:'Repuestos utilizados'}, {k:'tecnico', l:'Técnico'}, {k:'proveedor', l:'Proveedor o taller'},
   {k:'paroH', l:'Horas de paro', t:'num'}, {k:'costo', l:'Costo (Q)', t:'num'},
-  {k:'ot', l:'Orden de trabajo'}, {k:'aviso', l:'Aviso SAP'}, {k:'evidencia', l:'Evidencia (enlace)'}
+  {k:'ot', l:'Orden de trabajo'}, {k:'aviso', l:'Aviso SAP'}, {k:'evidencia', l:'Evidencia (enlace)'},
+  {k:'fechaEntrada', l:'Fecha de entrada', t:'date', al:['ENTRADA','FECHA ENTRADA']}, {k:'fechaSalida', l:'Fecha de salida', t:'date', al:['SALIDA','FECHA SALIDA']}
 ];
 const MDF = [
   {k:'id', l:'ID'}, {k:'motorId', l:'Código del motor'}, {k:'fecha', l:'Fecha', t:'date'}, {k:'tecnico', l:'Técnico'},
@@ -1653,13 +1675,14 @@ function viewName(r){
   return 'Inventario';
 }
 function backTarget(){
-  if (!SOLO) return {view:'inv'};
+  if (!onlyLay()) return {view:'inv'};
   const m = R.view === 'ficha' ? state.motores.find(x => x.id === R.id) : null, u = m ? ubicar(m) : null;
   return u && u.L ? {view:'lay', p:u.P.id, l:u.L.id, e:u.E ? u.E.cod : ''} : {view:'lay'};
 }
 function goBack(){ if (NAVH.length) history.back(); else go(backTarget()); }
+const onlyLay = () => SOLO || !admin;
 function go(r, keep){
-  if (SOLO && r.view !== 'lay' && r.view !== 'ficha') r = {view:'lay'};
+  if (onlyLay() && r.view !== 'lay' && r.view !== 'ficha') r = {view:'lay'};
   NAVH.push({...R});
   R = r;
   try {
@@ -1677,7 +1700,7 @@ window.addEventListener('popstate', () => { NAVH.pop(); readRoute(); render(); }
 
 function render(){
   reindex();
-  if (SOLO && R.view !== 'lay' && R.view !== 'ficha') R = {view:'lay'};
+  if (onlyLay() && R.view !== 'lay' && R.view !== 'ficha') R = {view:'lay'};
   const cur = R.view === 'etq' ? 'etq' : R.view === 'lay' ? 'lay' : R.view === 'panel' ? 'panel' : 'inv';
   $$('.tab').forEach(t => t.setAttribute('aria-current', t.dataset.view === cur ? 'page' : 'false'));
   if (R.view === 'ficha') renderFicha(R.id);
@@ -1936,11 +1959,20 @@ function renderFicha(id){
       ${stat('Rebobinados', NF0.format(r.rebob), r.causaTop ? `Causa más frecuente: ${esc(r.causaTop[0].toLowerCase())}` : 'Desde que hay registro')}
     </div>
     ${r.ult ? `<p class="sm" style="margin:12px 0 0">Último servicio: <b style="color:var(--ink)">${esc(r.ult.tipo || 'Intervención')}</b>, ${esc(fmtD(r.ult.fecha))}${parseD(r.ult.fecha) ? `, hace ${pl(Math.max(0, diffDays(parseD(r.ult.fecha), today())),'día','días')}` : ''}.</p>` : ''}`;
+  const esList = hist.filter(h => h.fechaEntrada || h.fechaSalida).sort((a, b) => String(b.fechaEntrada || b.fechaSalida).localeCompare(String(a.fechaEntrada || a.fechaSalida)));
+  const esSec = !esList.length ? `<p class="muted" style="margin:0">Sin entradas ni salidas registradas. Usa “Entrada y salida” para registrar cuándo entró y cuándo salió el motor.</p>`
+    : `<ul class="esl">${esList.map(h => { const e = parseD(h.fechaEntrada), sa = parseD(h.fechaSalida); const d = e ? diffDays(e, sa || today()) : null;
+      return `<li class="${sa ? '' : 'open'}">
+        <div class="es-dt"><span><small>Entrada</small><b>${esc(fmtD(h.fechaEntrada) || '—')}</b></span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M14 7l5 5-5 5"/></svg><span><small>Salida</small><b>${sa ? esc(fmtD(h.fechaSalida)) : 'Pendiente'}</b></span></div>
+        <div class="es-m"><span class="tag ${TIPOS_FALLA.includes(h.tipo) ? 'tag-f' : ''}">${esc(h.tipo || 'Intervención')}</span>${h.proveedor ? `<span class="sm">${esc(h.proveedor)}</span>` : ''}</div>
+        <div class="es-r">${d != null ? `<span class="es-d ${sa ? '' : 'w'}">${sa ? pl(Math.max(0, d),'día','días') : `Lleva ${pl(Math.max(0, d),'día','días')}`}</span>` : ''}${sa ? '' : `<button class="btn btn-sm" data-a="es-out" data-id="${esc(h.id)}">Registrar salida</button>`}</div>
+      </li>`; }).join('')}</ul>`;
   const hlist = hist.slice(0, F._histAll === m.id ? 999 : 8);
   const histSec = !hist.length ? `<p class="muted" style="margin:0">Sin servicios registrados.</p>` : `<ul class="hl">${hlist.map(h => `<li>
       <div class="hl-d">${esc(fmtD(h.fecha) || 'Sin fecha')}</div>
       <div style="min-width:0"><div class="hl-t"><span class="tag ${TIPOS_FALLA.includes(h.tipo) ? 'tag-f' : ''}">${esc(h.tipo || 'Intervención')}</span>${h.ot ? `<span class="sm">OT ${esc(h.ot)}</span>` : ''}${h.aviso ? `<span class="sm">Aviso ${esc(h.aviso)}</span>` : ''}</div>
       <div class="hl-x">${esc(h.descripcion)}</div>
+      ${h.fechaEntrada || h.fechaSalida ? `<div class="hl-k"><span>Entrada:</span> ${esc(fmtD(h.fechaEntrada) || '—')}, <span>salida:</span> ${esc(fmtD(h.fechaSalida) || 'pendiente')}</div>` : ''}
       ${h.causa ? `<div class="hl-k"><span>Causa:</span> ${esc(h.causa)}</div>` : ''}
       ${h.repuestosUsados ? `<div class="hl-k"><span>Repuestos:</span> ${esc(h.repuestosUsados)}</div>` : ''}
       <div class="sm">${[h.tecnico, h.proveedor, num(h.paroH) != null ? `${fmtN(h.paroH,1)} h de paro` : '', num(h.costo) != null ? `Q ${fmtN(h.costo,2)}` : ''].filter(Boolean).map(esc).join(', ')}${safeUrl(h.evidencia) ? ` <a class="lnk" href="${esc(safeUrl(h.evidencia))}" target="_blank" rel="noopener">Ver evidencia</a>` : ''}</div></div>
@@ -1963,7 +1995,7 @@ function renderFicha(id){
 
   v.innerHTML = `${loadErrNote()}
   <div class="ftool">
-    <button class="btn btn-ghost bk" data-a="back" title="Volver a la pantalla anterior">${ic('back')}<span>Volver${NAVH.length ? ` a ${esc(viewName(NAVH[NAVH.length - 1]))}` : SOLO ? ` a ${esc(viewName(backTarget()))}` : ' al inventario'}</span></button>
+    <button class="btn btn-ghost bk" data-a="back" title="Volver a la pantalla anterior">${ic('back')}<span>Volver${NAVH.length ? ` a ${esc(viewName(NAVH[NAVH.length - 1]))}` : onlyLay() ? ` a ${esc(viewName(backTarget()))}` : ' al inventario'}</span></button>
     <div class="ftool-r adm">
       <button class="btn btn-pri" data-a="hist-new" data-id="${esc(m.id)}">${ic('wrench')}<span>Registrar servicio</span></button>
       <button class="btn" data-a="med-new" data-id="${esc(m.id)}">${ic('gauge')}<span>Registrar medición</span></button>
@@ -2001,6 +2033,7 @@ function renderFicha(id){
       ${sec('s-conf', 'Confiabilidad', confSec)}
       ${sec('s-med', 'Última medición', medSec, `<button class="btn btn-sm adm" data-a="med-new" data-id="${esc(m.id)}">${ic('plus')} Medición</button>`)}
       ${meds.length ? sec('s-trend', 'Tendencia', `<div id="trend">${trendHtml(m)}</div>`) : ''}
+      ${sec('s-es', 'Entradas y salidas', esSec, `<button class="btn btn-sm" data-a="es-new" data-id="${esc(m.id)}">${ic('plus')} Entrada y salida</button>`)}
       ${sec('s-hist', 'Historial de servicios', histSec, `<button class="btn btn-sm adm" data-a="hist-new" data-id="${esc(m.id)}">${ic('plus')} Servicio</button>`)}
       ${medsSec}
     </div>
@@ -2130,8 +2163,8 @@ function lineSvg(L, LI, sel, mini){
   const xd = i => mg + i * PITCH;
   const iS = flujo.findIndex(e => e.t === 'soldadura'); const xS = iS >= 0 ? xd(iS) : null;
   const x0 = xd(0), x1 = xd(n - 1);
-  let prod = xS === null ? `<path class="fleje" pathLength="1" d="M${x0} ${PY} H${x1 + 30}"/>`
-    : `<path class="fleje" pathLength="1" d="M${x0} ${PY} H${xS}"/><path class="tubo-out" pathLength="1" d="M${xS} ${PY} H${x1 + 30}"/><path class="tubo-in" pathLength="1" d="M${xS + 6} ${PY} H${x1 + 26}"/>`;
+  /* una sola vía, de la primera máquina a la última */
+  let prod = `<path class="fleje" pathLength="1" d="M${x0} ${PY} H${x1 + 30}"/>`;
   for (let i = 0; i < n - 1; i++) { const xm = xd(i) + PITCH / 2; prod += `<path class="chev" d="M${xm - 5} ${PY - 6} L${xm + 3} ${PY} L${xm - 5} ${PY + 6}"/>`; }
   const maq = flujo.map((e, i) => {
     const x = xd(i), ms = (LI && LI.eq[e.cod]) || [], st = worstOf(ms);
@@ -2264,6 +2297,7 @@ function renderLay(){
       body = `<section class="ly-sec ${anim ? 'anim' : ''}" id="ly-lines" aria-label="Líneas de ${esc(P.nombre)}">
         <header class="ly-sh"><svg class="ly-ic" viewBox="0 0 80 80" aria-hidden="true">${PL_IC[P.id] || ''}</svg>
           <div class="ly-sht"><h2>Líneas de ${esc(P.nombre)}</h2><p>${P.lineas.length ? `${pl(P.lineas.length,'línea','líneas')}, ${pl(I.motores.length,'motor','motores')}, ${fmtN(pk,0)} kW${al ? `, <span class="s-warn">${pl(al,'motor con alerta','motores con alertas')}</span>` : ', sin alertas'}` : 'Sin líneas cargadas'}</p></div>
+          <button class="btn btn-pri ly-add" data-a="new-pl" data-id="${P.id}">${ic('plus')} Agregar motor</button>
           ${P.lineas.length > 1 ? `<div class="ly-seg" role="group" aria-label="Ordenar líneas"><span>Ordenar</span>${[['flujo','Orden de planta'],['motores','Más motores'],['kw','Más potencia']].map(([k, t]) => `<button data-a="lsort" data-v="${k}" aria-pressed="${LSORT === k}">${t}</button>`).join('')}</div>` : ''}
         </header>
         ${P.lineas.length ? `<div class="lcards">${ls.map((l, i) => lineCard(l, I.lineas[l.id] || {motores:[], eq:{}}, pk, i)).join('')}</div>`
@@ -2273,7 +2307,7 @@ function renderLay(){
     } else {
       body = `<div class="ly-pick"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg><p>Elige una unidad de negocio para desplegar sus líneas.</p></div>`;
     }
-    v.innerHTML = `${loadErrNote()}${SOLO ? baseNote(true) : ''}<div class="ly ${first ? 'first' : ''}">
+    v.innerHTML = `${loadErrNote()}${baseNote(true)}<div class="ly ${first ? 'first' : ''}">
       <section class="ly-hero"><span class="kpi-bg" aria-hidden="true">TAXONOMÍA</span>
         <div class="ly-hh"><h1>Taxonomía</h1><p>Elige la unidad de negocio y se despliegan sus líneas. Cada equipo del dibujo muestra cuántos motores tiene; tócalo para ver sus motores y su ficha.</p></div>
         <div class="ly-sts">${lyStat(PLANTAS.length, PLANTAS.length === 1 ? 'unidad' : 'unidades')}${lyStat(nL, 'líneas')}${lyStat(all.length, 'motores')}${lyStat(kwSum(all), 'kW instalados')}</div>
@@ -2305,7 +2339,7 @@ function renderLay(){
     <div class="leg-l"><span class="mob-only">Desliza el dibujo de lado para ver toda la línea.</span><span><i class="b-ok"></i>Motores sin alertas</span><span><i class="b-warn"></i>Alguno con alerta</span><span><i class="b-bad"></i>Alguno con alarma o fuera de servicio</span><span class="muted">El número indica cuántos motores tiene el equipo.</span></div>
   </section>
   ${aux.length ? `<div class="auxs">${aux.map(e => { const ms = LI.eq[e.cod] || []; const st = worstOf(ms); return `<button class="auxc ${sel && sel.cod === e.cod ? 'on' : ''}" data-a="lay-eq" data-v="${esc(e.cod)}"><span class="ax-c">${esc(e.cod)}</span><span class="ax-n">${esc(e.nombre)}</span>${ms.length ? `<span class="ax-b b-${st}">${ms.length}</span>` : '<span class="ax-0">Sin motores</span>'}</button>`; }).join('')}</div>` : ''}
-  <section class="panel eqp" id="eqp">${sel ? `<div class="eqp-h"><div><span class="eqp-c">${esc(sel.cod)}${sel.aux ? ', sistema auxiliar' : ''}</span><h2>${esc(sel.nombre)}</h2></div><span class="sm">${pl(selMs.length,'motor','motores')}${selMs.length ? `, ${fmtN(kwSum(selMs),1)} kW` : ''}</span></div>
+  <section class="panel eqp" id="eqp">${sel ? `<div class="eqp-h"><div><span class="eqp-c">${esc(sel.cod)}${sel.aux ? ', sistema auxiliar' : ''}</span><h2>${esc(sel.nombre)}</h2></div><div class="eqp-a"><span class="sm">${pl(selMs.length,'motor','motores')}${selMs.length ? `, ${fmtN(kwSum(selMs),1)} kW` : ''}</span><button class="btn btn-sm btn-pri" data-a="new-eq" data-id="${esc(sel.cod)}" data-v="${esc(P.id + '|' + L.id)}">${ic('plus')} Agregar motor</button></div></div>
       ${selMs.length ? motorTable(selMs) : `<div class="empty" style="padding:28px 16px"><p>Este equipo no tiene motores registrados. Al crear o editar un motor, pon este número en “N.º de equipo SAP”.</p></div>`}`
     : `<div class="empty" style="padding:28px 16px"><p>Toca un equipo del dibujo para ver sus motores.</p></div>`}</section>
   ${LI.sinEq.length ? `<section class="panel" style="margin-top:16px"><div class="tbl-meta"><span>${pl(LI.sinEq.length,'motor de esta línea tiene','motores de esta línea tienen')} un N.º de equipo SAP que no está en la taxonomía</span></div>${motorTable(LI.sinEq)}</section>` : ''}`;
@@ -2804,9 +2838,32 @@ function dropDemo(){ return false; }
 /* ---- Motor ---- */
 const NUMK_MOTOR = MF.filter(f => f.t === 'num').map(f => f.k);
 const fnav = groups => `<nav class="fnav" aria-label="Secciones del formulario">${groups.map((g, i) => `<button type="button" data-a="fjump" data-v="fs${i}">${esc(g)}</button>`).join('')}</nav>`;
-function motorModal(id){
+/* TAG automático por unidad: Tuboacero EM-1xxx, Techoacero EM-2xxx, Mayacero EM-3xxx */
+const TAG_SERIE = {TUBOACERO:1, TECHOACERO:2, MAYACERO:3};
+function plantOf(name){ const k = normKey(name); return PLANTAS.find(p => normKey(p.id) === k || normKey(p.nombre) === k) || null; }
+function nextTag(plantaName){
+  const P = plantOf(plantaName); const ser = P ? TAG_SERIE[P.id] : null; if (!ser) return '';
+  let mx = ser * 1000;
+  [...state.motores, ...BASE_MOTORES].forEach(m => { const x = /^EM-(\d{4})$/.exec(m.id); if (x) { const n = +x[1]; if (n > mx && n < (ser + 1) * 1000) mx = n; } });
+  return 'EM-' + (mx + 1);
+}
+function presetFor(pid, lid, cod){
+  const P = PLANTAS.find(p => p.id === pid); if (!P) return {};
+  const o = {planta:P.nombre, pais:'Guatemala', estado:'Operando'};
+  const L = lid ? P.lineas.find(l => l.id === lid) : null;
+  if (L) {
+    const LI = (layIndex()[P.id] || {lineas:{}}).lineas[L.id];
+    const ex = LI && LI.motores.find(m => m.linea);
+    o.linea = ex ? ex.linea : (L.al && L.al[0]) || L.nombre; o.ut = L.tag || '';
+    const e = cod ? L.eq.find(x => x.cod === cod) : null;
+    if (e) { o.equipoSap = e.cod; o.equipo = e.nombre.toUpperCase(); }
+  }
+  o.id = nextTag(P.nombre);
+  return o;
+}
+function motorModal(id, preset){
   const isNew = !id; const old = isNew ? null : state.motores.find(m => m.id === id);
-  const base = old || Object.fromEntries(MF.map(f => [f.k, f.def || '']));
+  const base = old || {...Object.fromEntries(MF.map(f => [f.k, f.def || ''])), ...(preset || {}), id:(preset && preset.id) || ''};
   const groups = [...new Set(MF.map(f => f.g))];
   const lists = ['planta','linea','marca','responsable'].map(k => `<datalist id="dl_${k}">${uniq(state.motores.map(m => m[k])).map(x => `<option value="${esc(x)}">`).join('')}</datalist>`).join('')
     + `<datalist id="dl_equipoSap">${PLANTAS.flatMap(P => P.lineas.flatMap(L => L.eq.map(e => `<option value="${esc(e.cod)}" label="${esc(L.id + ', ' + e.nombre)}">${esc(L.id + ', ' + e.nombre)}</option>`))).join('')}</datalist>`;
@@ -2814,6 +2871,16 @@ function motorModal(id){
     title: isNew ? 'Nuevo motor' : `Editar ${old.id}`, wide:true,
     body: fnav(groups) + groups.map((g, i) => `<fieldset id="fs${i}"><legend>${g}</legend><div class="fg">${MF.filter(f => f.g === g).map(f => fieldHtml(f, base[f.k] ?? '', {ro: f.k === 'id' && !isNew})).join('')}</div></fieldset>`).join('') + lists,
     foot: `${isNew ? '' : `<button type="button" class="btn btn-danger left" data-a="del-motor" data-id="${esc(old.id)}">${ic('trash')} Eliminar motor</button>`}<button type="button" class="btn" data-a="modal-close">Cancelar</button><button type="submit" class="btn btn-pri">${isNew ? 'Agregar motor' : 'Guardar cambios'}</button>`,
+    onMount: form => {
+      if (!isNew) return;
+      const fid = form.elements.namedItem('id'), fpl = form.elements.namedItem('planta');
+      let auto = fid.value;
+      const hint = document.createElement('p'); hint.className = 'sm muted'; hint.style.margin = '4px 0 0';
+      const upd = () => { hint.textContent = fid.value && fid.value === auto ? 'TAG sugerido automáticamente (el siguiente disponible de la unidad). Puedes cambiarlo.' : ''; };
+      fid.closest('.f').appendChild(hint); upd();
+      fid.addEventListener('input', upd);
+      fpl && fpl.addEventListener('input', () => { const t = nextTag(fpl.value); if (t && (!fid.value || fid.value === auto)) { fid.value = t; auto = t; upd(); } });
+    },
     onSubmit: form => {
       const fd = Object.fromEntries(new FormData(form));
       const m = cleanMotor({...(old || {}), ...fd}); if (!isNew) m.id = old.id;
@@ -2830,8 +2897,9 @@ function motorModal(id){
       const i = state.motores.findIndex(x => x.id === m.id);
       if (i >= 0) state.motores[i] = m; else state.motores.push(m);
       persist(); closeModal();
-      toast(isNew ? `Motor ${m.id} agregado.` : 'Cambios guardados.');
+      toast(isNew ? `Motor ${m.id} agregado. Su etiqueta QR ya está lista.` : 'Cambios guardados.');
       go({view:'ficha', id:m.id});
+      if (isNew) setTimeout(() => openLabel(m.id), 350);
     }
   });
 }
@@ -2847,7 +2915,7 @@ function deleteMotor(id){
 }
 const tecList = id => `<datalist id="${id}">${uniq([...state.historial, ...state.mediciones].map(h => h.tecnico)).map(t => `<option value="${esc(t)}">`).join('')}</datalist>`;
 /* ---- Servicio ---- */
-function histModal(id){
+function histModal(id, focusES){
   const m = state.motores.find(x => x.id === id); if (!m) return;
   const inp = (k, l, o = {}) => `<div class="f ${o.wide ? 'wide' : ''}" data-f="${k}"><label for="h_${k}">${l}${o.req ? ' <span class="req">*</span>' : ''}</label>${o.area ? `<textarea id="h_${k}" name="${k}" rows="${o.rows || 2}" placeholder="${esc(o.ph || '')}"></textarea>` : `<input id="h_${k}" name="${k}" ${o.type ? `type="${o.type}"` : ''} value="${esc(o.val || '')}" placeholder="${esc(o.ph || '')}" ${o.num ? 'inputmode="decimal"' : ''} ${o.list ? `list="${o.list}"` : ''} autocomplete="off">`}<p class="ferr" hidden></p></div>`;
   openModal({
@@ -2858,6 +2926,10 @@ function histModal(id){
       <div class="f"><label for="h_est">Estado del motor después</label><select id="h_est" name="estado"><option value="">Sin cambio (${esc(m.estado)})</option>${ESTADOS.map(e => `<option>${e.k}</option>`).join('')}</select></div>
       ${inp('descripcion','Qué se hizo',{req:1, wide:1, area:1, rows:3, ph:'Cambio de rodamientos DE y NDE, limpieza y reapriete de bornera'})}
       <div class="f wide" id="h_cuenta_w"><label class="ck"><input type="checkbox" name="cuenta" checked><span id="h_ckt"></span></label></div>
+    </div></fieldset>
+    <fieldset id="h_es"><legend>Entrada y salida</legend><p class="sm muted" style="margin:0 0 10px">Opcional. Si todavía no tiene fecha de salida, déjala vacía y regístrala después desde la ficha.</p><div class="fg">
+      ${inp('fechaEntrada','Fecha de entrada',{type:'date'})}
+      ${inp('fechaSalida','Fecha de salida',{type:'date'})}
     </div></fieldset>
     <fieldset id="h_falla"><legend>Falla</legend><div class="fg">
       <div class="f"><label for="h_causa">Causa de la falla</label><select id="h_causa" name="causa">${CAUSAS.map(c => `<option value="${esc(c)}">${c || 'Sin definir'}</option>`).join('')}</select></div>
@@ -2885,11 +2957,14 @@ function histModal(id){
       };
       $('#h_paro_w2', form).remove();
       form.tipo.addEventListener('change', upd); upd();
+      if (focusES) setTimeout(() => { $('#h_es', form).scrollIntoView({block:'center'}); form.fechaEntrada.focus(); }, 120);
     },
     onSubmit: form => {
       const fd = Object.fromEntries(new FormData(form)); const errs = {};
       if (!normDate(fd.fecha)) errs.fecha = 'Indica la fecha.';
       if (!String(fd.descripcion || '').trim()) errs.descripcion = 'Describe brevemente lo que se hizo.';
+      if (fd.fechaSalida && !fd.fechaEntrada) errs.fechaEntrada = 'Indica también la fecha de entrada.';
+      if (fd.fechaEntrada && fd.fechaSalida && fd.fechaSalida < fd.fechaEntrada) errs.fechaSalida = 'La salida no puede ser antes de la entrada.';
       numErrs(fd, HF, errs);
       if (showErrs(form, errs)) return;
       if (!TIPOS_FALLA.includes(fd.tipo)) fd.causa = '';
@@ -2902,6 +2977,21 @@ function histModal(id){
       }
       if (fd.estado) m.estado = fd.estado;
       persist(); closeModal(); toast('Servicio registrado.'); render();
+    }
+  });
+}
+function esOutModal(hid){
+  const h = state.historial.find(x => x.id === hid); if (!h) return;
+  openModal({
+    title:'Registrar fecha de salida',
+    body:`<p class="sm" style="margin:0 0 12px">${esc(h.motorId)}, ${esc(h.tipo || 'servicio')}. Entrada: <b>${esc(fmtD(h.fechaEntrada) || 'sin fecha')}</b>.</p><div class="f" data-f="fechaSalida"><label for="es_out">Fecha de salida</label><input id="es_out" name="fechaSalida" type="date" value="${iso(today())}"><p class="ferr" hidden></p></div>`,
+    foot:`<button type="button" class="btn" data-a="modal-close">Cancelar</button><button type="submit" class="btn btn-pri">Guardar salida</button>`,
+    onMount: form => setTimeout(() => form.fechaSalida.focus(), 80),
+    onSubmit: form => {
+      const v = normDate(form.fechaSalida.value);
+      if (!v) { showErrs(form, {fechaSalida:'Indica la fecha de salida.'}); return; }
+      if (h.fechaEntrada && v < h.fechaEntrada) { showErrs(form, {fechaSalida:'La salida no puede ser antes de la entrada.'}); return; }
+      h.fechaSalida = v; persist(); closeModal(); toast('Fecha de salida guardada.'); render();
     }
   });
 }
@@ -2946,8 +3036,8 @@ function medModal(id){
 }
 /* ---- PIN ---- */
 /* Libre: registrar servicios y mediciones, editar datos, etiquetas. Con PIN: eliminar y agregar motores. */
-const PIN_ACTS = new Set(['new','import','load-base','clear-demo','hist-del','med-del','del-motor']);
-const PIN_WHY = {'new':'agregar un motor', 'import':'importar motores desde Excel', 'load-base':'agregar los motores de la lista base', 'clear-demo':'quitar los datos de ejemplo', 'hist-del':'borrar un servicio', 'med-del':'borrar una medición'};
+const PIN_ACTS = new Set(['new','new-eq','new-pl','import','load-base','clear-demo','hist-del','med-del','del-motor']);
+const PIN_WHY = {'new':'agregar un motor', 'new-eq':'agregar un motor', 'new-pl':'agregar un motor', 'import':'importar motores desde Excel', 'load-base':'agregar los motores de la lista base', 'clear-demo':'quitar los datos de ejemplo', 'hist-del':'borrar un servicio', 'med-del':'borrar una medición'};
 function askPin(then, why){
   openModal({
     title:'Se requiere el PIN',
@@ -2961,15 +3051,15 @@ function askPin(then, why){
   });
 }
 function lockToggle(){
-  if (admin) { admin = false; store.sset(SS_ADMIN, '0'); applyAdmin(); toast('Saliste del modo administrador.'); render(); return; }
+  if (admin) { admin = false; store.sset(SS_ADMIN, '0'); applyAdmin(); toast('Saliste del modo administrador.'); if (R.view !== 'lay' && R.view !== 'ficha') go({view:'lay'}); else render(); return; }
   openModal({
     title:'Modo administrador',
-    body:`<p class="sm">Con el PIN puedes agregar y eliminar motores, y borrar servicios o mediciones. Registrar servicios, mediciones y editar datos no lo necesita.</p><div class="f" data-f="pin"><label for="pin" class="sr">PIN</label><input id="pin" name="pin" class="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"><p class="ferr" hidden></p></div>`,
+    body:`<p class="sm">${SOLO ? '' : 'Con el PIN se muestran Panel, Inventario y Etiquetas QR. '}También puedes agregar y eliminar motores, y borrar servicios o mediciones. Registrar servicios, mediciones y editar datos no lo necesita.</p><div class="f" data-f="pin"><label for="pin" class="sr">PIN</label><input id="pin" name="pin" class="pin" type="password" inputmode="numeric" maxlength="8" autocomplete="off"><p class="ferr" hidden></p></div>`,
     foot:`<button type="button" class="btn" data-a="modal-close">Cancelar</button><button type="submit" class="btn btn-pri">Entrar</button>`,
     onMount: form => setTimeout(() => form.pin.focus(), 80),
     onSubmit: form => {
       if (form.pin.value.trim() !== CONFIG.PIN) { showErrs(form, {pin:'PIN incorrecto.'}); form.pin.select(); return; }
-      admin = true; store.sset(SS_ADMIN, '1'); applyAdmin(); closeModal(); toast('Modo administrador activo.'); render(); if (migSave && API()) { migSave = false; persist(); }
+      admin = true; store.sset(SS_ADMIN, '1'); applyAdmin(); closeModal(); toast(SOLO ? 'Modo administrador activo.' : 'Modo administrador activo: ya puedes ver Panel, Inventario y Etiquetas QR.'); render(); if (migSave && API()) { migSave = false; persist(); }
     }
   });
 }
@@ -3099,7 +3189,7 @@ document.addEventListener('click', ev => {
     case 'inv': go({view:'inv'}); break;
     case 'etq': go({view:'etq'}); break;
     case 'lay': go({view:'lay'}); break;
-    case 'panel': go({view:'panel'}); break;
+    case 'panel': go(admin && !SOLO ? {view:'panel'} : {view:'lay'}); break;
     case 'back': goBack(); break;
     case 'theme': setTheme(!document.body.classList.contains('dark')); break;
     case 'pf-line': PF.linea = PF.linea === val ? '' : val; renderPanel(); break;
@@ -3125,9 +3215,13 @@ document.addEventListener('click', ev => {
     case 'open': go({view:'ficha', id}); break;
     case 'lock': lockToggle(); break;
     case 'new': motorModal(); break;
+    case 'new-pl': motorModal(null, presetFor(id)); break;
+    case 'new-eq': { const [pid, lid] = (val || '').split('|'); motorModal(null, presetFor(pid, lid, id)); break; }
     case 'edit': motorModal(id); break;
     case 'del-motor': closeModal(true); deleteMotor(id); break;
     case 'hist-new': histModal(id); break;
+    case 'es-new': histModal(id, true); break;
+    case 'es-out': esOutModal(id); break;
     case 'med-new': medModal(id); break;
     case 'hist-all': F._histAll = id; render(); break;
     case 'hist-del': confirmBox('Borrar intervención', '¿Borrar esta intervención del historial? Las fechas de último preventivo o lubricación del motor no cambian.', 'Borrar', () => { state.historial = state.historial.filter(h => h.id !== id); persist(); render(); toast('Intervención borrada.'); }); break;
